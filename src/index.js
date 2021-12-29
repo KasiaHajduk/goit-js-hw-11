@@ -29,6 +29,8 @@ function searching(event) {
         console.log("ilość rekordów");
         console.log(res.total);
         console.log(res.totalHits);
+        Notiflix.Notify.info(`Hooray! We found ${res.totalHits} images.`);
+
         if (res.total == 0) {
           Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
           gallery.innerHTML = '';
