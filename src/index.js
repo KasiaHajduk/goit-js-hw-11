@@ -6,47 +6,84 @@ import Notiflix from 'notiflix';
 
 const textSearch = document.querySelector('input');
 const btnSearch = document.querySelector(".search-form__submit");
-
+const btnMore = document.querySelector(".load-more");
 const gallery = document.querySelector(".gallery");
+let nrPage = 0;
+let qWhat = '';
 
+btnMore.style.visibility = "hidden";
 
 function searching(event) {
   event.preventDefault();
-  //const qWhat = "cat";
-  const nrPage = 1;
+  gallery.innerHTML = '';
+  nrPage = 1;
+  
   console.log(textSearch.value);
-  console.log("cat");
-  const qWhat = textSearch.value;
+  qWhat = textSearch.value;
   console.log(qWhat);
+
   if (qWhat === '') {
     Notiflix.Notify.info('Please enter a topic to search');
   }
   else {
     console.log("aaaaaaaastart");
+
     imageSearch(qWhat, nrPage)
       .then(res => {
         console.log(res);
         console.log("ilość rekordów");
         console.log(res.total);
         console.log(res.totalHits);
-        Notiflix.Notify.info(`Hooray! We found ${res.totalHits} images.`);
-
+        
         if (res.total == 0) {
-          Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
+          btnMore.style.visibility = "hidden";
+          Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
           gallery.innerHTML = '';
         }
-        else
+        else {
+
+          Notiflix.Notify.info(`Hooray! We found ${res.totalHits} images.`);
+          btnMore.style.visibility = "visible";
           renderImages(res.hits);
+        }
       })
       .catch(err => {
         console.error(err);
-    })   
+      })   
     console.log("aaaaaaaaaaend");
   }
-
-  
 }
 
+function searchingMore(event) {
+  event.preventDefault();
+  nrPage += 1;
+      imageSearch(qWhat, nrPage)
+        .then(res => {
+          //console.log(res);
+          console.log("ilość rekordów");
+          console.log(nrPage);
+          //console.log(res.totalHits);
+          //Notiflix.Notify.info(`Hooray! We found ${res.totalHits} images.`);
+          //if (res.totalHits == 0) {
+          //   Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
+          //   gallery.innerHTML = '';
+          // }
+          // else
+          renderImages(res.hits);
+          if (res.totalHits < nrPage * 40) {
+            btnMore.style.visibility = "hidden";
+            Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+          }
+        })
+      .catch(err => {
+        console.error(err);
+      }) 
+
+}
+
+
+
+btnMore.addEventListener("click", searchingMore);
 
 btnSearch.addEventListener("click", searching);
 
@@ -67,7 +104,7 @@ function imageSearch(qWhat, nrPage) {
     // });
    //return fetch(`https://restcountries.com/v3.1/name/${countryName}`) //fetch zwraca nam obietnicę
   //return fetch(`https://pixabay.com/api/?key=24803522-b54cf9c0fe000d87c5b473725&q=${qWhat}&image_type=photo&orientation=horizontal&safesearch=true?${params}?fields=tags`)
-       return fetch(`https://pixabay.com/api/?key=24803522-b54cf9c0fe000d87c5b473725&q=${qWhat}&image_type=photo&orientation=horizontal&safesearch=true&page=${nrPage}&per_page=5`)
+       return fetch(`https://pixabay.com/api/?key=24803522-b54cf9c0fe000d87c5b473725&q=${qWhat}&image_type=photo&orientation=horizontal&safesearch=true&page=${nrPage}&per_page=40`)
         .then(res => { //then też zwraca nam obietnicę
             if (res.ok) {
                 return res.json();
@@ -76,22 +113,6 @@ function imageSearch(qWhat, nrPage) {
             }
         })
 }
-
-//   console.log("start");
-//   console.log(imageSearch("dog"));
-//   console.log("end");
-// imageSearch("dog")
-//     .then(res => {
-//       console.log(res);
-//       console.log("ilość rekordów");
-//       console.log(res.total);
-//       console.log(res.totalHits);
-//       renderImages(res.hits);
-//     })
-//     .catch(err => {
-//         console.error(err);
-//     })    
-
 
 
 function renderImages(theme) {
@@ -126,7 +147,7 @@ function renderImages(theme) {
         </div>
       </div>`;
     }).join('');
-   gallery.innerHTML = markup;
+   gallery.innerHTML += markup;
 }
 
 
