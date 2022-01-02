@@ -2,18 +2,19 @@ import './sass/main.scss';
 import Notiflix from 'notiflix';
 import axios from 'axios';
 
-// import SimpleLightbox from 'simplelightbox';
-// import 'simplelightbox/dist/simple-lightbox.min.css';
-// // import * as basicLightbox from 'basiclightbox';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
 const textSearch = document.querySelector('input');
 const btnSearch = document.querySelector(".search-form__submit");
 const btnMore = document.querySelector(".load-more");
 const gallery = document.querySelector(".gallery");
 let nrPage = 0;
-let qWhat = '';
+let qWhat = "";
+
 
 btnMore.style.visibility = "hidden";
+
 
 function searching(event) {
   btnMore.style.visibility = "hidden";
@@ -57,9 +58,7 @@ function searchingMore(event) {
       .catch(err => {
         console.error(err);
       }) 
-
 }
-
 
 btnSearch.addEventListener("click", searching);
 btnMore.addEventListener("click", searchingMore);
@@ -81,20 +80,14 @@ async function imageSearch(qWhat, nrPage) {
 
 function renderImages(theme) {
   const markup = theme.map(image => {
-    // console.log(`image id ${image.id}`);
-    // console.log(`mały obrazek ${image.webformatURL}`);
-    // console.log(`duży obrazek ${image.largeImageURL}`);
-    // console.log(`opis ${image.tags}`);
-    // console.log(`lajki ${image.likes}`);
-    // console.log(`wyświetlenia ${image.views}`);
-    // console.log(`komentarze ${image.comments}`);
-    // console.log(`pobrania id ${image.downloads}`);
     return `  
       <div class="photo-card">
+        <a href="${image.largeImageURL}">
         <img class="photo-card__image"
           src="${image.webformatURL}" 
           data-source="${image.largeImageURL}"
           alt="${image.tags}" loading="lazy" />
+        </a>    
         <div class="info">
           <p class="info-item">
             <b>Likes</b> ${image.likes}
@@ -111,27 +104,42 @@ function renderImages(theme) {
         </div>
       </div>`;
     }).join('');
-   gallery.innerHTML += markup;
+  gallery.innerHTML += markup;
+  
+  new SimpleLightbox(`.gallery a`, { captionsData: "alt", captionDelay: 250 });
+  
+  const { height: cardHeight } = document
+    .querySelector('.gallery')
+    .firstElementChild.getBoundingClientRect();
+
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+});
+
+
 }
 
 
-//gallery
-const selectImage = ((event) => {
-  // function selectImage(event) {
-  event.preventDefault();
-  console.log(`event.target.src ${event.target}`);
-  const instance = basicLightbox.create(`<img src="${event.target.dataset.source}" alt="${event.target.alt}">`)
-  instance.show();
-  if (instance.visible() === true) {
-    document.addEventListener("keydown", event => {
-      if (event.key === "Escape") {
-        instance.close();
-      }
-    })
-  }
-});
+// //gallery
+// const selectImage = ((event) => {
+//   event.preventDefault();
+//   console.log(`event.target.src ${event.target}`);
+//   const instance = basicLightbox.create(`<img src="${event.target.dataset.source}" alt="${event.target.alt}">`)
+//   instance.show();
+//   if (instance.visible() === true) {
+//     document.addEventListener("keydown", event => {
+//       if (event.key === "Escape") {
+//         instance.close();
+//       }
+//     })
+//   }
+// });
+// gallery.addEventListener("click", selectImage);
 
-gallery.addEventListener("click", selectImage);
 
-//new SimpleLightbox('.gallery a', {captionsData: "alt", captionDelay: 250});
-
+window.onscroll = function(){
+   if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+      searchingMore();
+   }
+};
