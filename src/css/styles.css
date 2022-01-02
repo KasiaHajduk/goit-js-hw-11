@@ -32,9 +32,6 @@
   transition: transform var(--animation-duration) var(--timing-function);
 }
 
-/* .photo-card__image:hover {
-  transform: scale(1.03);
-} */
 
 .gallery__link {
   display: block;
@@ -63,6 +60,7 @@
 
 .load-more {
   text-transform: uppercase;
+  font-size: 20px;
   text-align: center;
   color: white;
   background-color: blue;

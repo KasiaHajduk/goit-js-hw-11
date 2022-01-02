@@ -1,8 +1,10 @@
 import './sass/main.scss';
 import Notiflix from 'notiflix';
+import axios from 'axios';
 
-// const basicLightbox = require('basiclightbox');
-// import * as basicLightbox from 'basiclightbox';
+// import SimpleLightbox from 'simplelightbox';
+// import 'simplelightbox/dist/simple-lightbox.min.css';
+// // import * as basicLightbox from 'basiclightbox';
 
 const textSearch = document.querySelector('input');
 const btnSearch = document.querySelector(".search-form__submit");
@@ -14,34 +16,22 @@ let qWhat = '';
 btnMore.style.visibility = "hidden";
 
 function searching(event) {
+  btnMore.style.visibility = "hidden";
   event.preventDefault();
   gallery.innerHTML = '';
   nrPage = 1;
   
-  console.log(textSearch.value);
   qWhat = textSearch.value;
-  console.log(qWhat);
-
+ 
   if (qWhat === '') {
     Notiflix.Notify.info('Please enter a topic to search');
-  }
-  else {
-    console.log("aaaaaaaastart");
-
+  } else {
     imageSearch(qWhat, nrPage)
       .then(res => {
-        console.log(res);
-        console.log("ilość rekordów");
-        console.log(res.total);
-        console.log(res.totalHits);
-        
         if (res.total == 0) {
-          btnMore.style.visibility = "hidden";
           Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again.');
           gallery.innerHTML = '';
-        }
-        else {
-
+        } else {
           Notiflix.Notify.info(`Hooray! We found ${res.totalHits} images.`);
           btnMore.style.visibility = "visible";
           renderImages(res.hits);
@@ -50,31 +40,20 @@ function searching(event) {
       .catch(err => {
         console.error(err);
       })   
-    console.log("aaaaaaaaaaend");
   }
 }
 
 function searchingMore(event) {
   event.preventDefault();
   nrPage += 1;
-      imageSearch(qWhat, nrPage)
-        .then(res => {
-          //console.log(res);
-          console.log("ilość rekordów");
-          console.log(nrPage);
-          //console.log(res.totalHits);
-          //Notiflix.Notify.info(`Hooray! We found ${res.totalHits} images.`);
-          //if (res.totalHits == 0) {
-          //   Notiflix.Notify.info('Sorry, there are no images matching your search query. Please try again.');
-          //   gallery.innerHTML = '';
-          // }
-          // else
-          renderImages(res.hits);
-          if (res.totalHits < nrPage * 40) {
-            btnMore.style.visibility = "hidden";
-            Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
-          }
-        })
+    imageSearch(qWhat, nrPage)
+      .then(res => {
+        renderImages(res.hits);
+        if (res.totalHits < nrPage * 40) {
+          btnMore.style.visibility = "hidden";
+          Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+        }
+      })
       .catch(err => {
         console.error(err);
       }) 
@@ -82,36 +61,21 @@ function searchingMore(event) {
 }
 
 
-
+btnSearch.addEventListener("click", searching);
 btnMore.addEventListener("click", searchingMore);
 
-btnSearch.addEventListener("click", searching);
 
-// btnSearch.addEventListener("click", event => {
-//   event.preventDefault();
-//   console.log(textSearch.value);
-//   console.log("cat");
-// });
-
-
-//btnSearch.addEventListener("click", imageSearch(textSearch.value));
-
-function imageSearch(qWhat, nrPage) {
-    // const params = new URLSearchParams({
-    //     _limit: 5,
-    //     // Change the group number here
-    //     _page: 3
-    // });
-   //return fetch(`https://restcountries.com/v3.1/name/${countryName}`) //fetch zwraca nam obietnicę
-  //return fetch(`https://pixabay.com/api/?key=24803522-b54cf9c0fe000d87c5b473725&q=${qWhat}&image_type=photo&orientation=horizontal&safesearch=true?${params}?fields=tags`)
-       return fetch(`https://pixabay.com/api/?key=24803522-b54cf9c0fe000d87c5b473725&q=${qWhat}&image_type=photo&orientation=horizontal&safesearch=true&page=${nrPage}&per_page=40`)
-        .then(res => { //then też zwraca nam obietnicę
-            if (res.ok) {
-                return res.json();
-            } else {
-                return Promise.reject(`Http error: ${res.status}`);
-            }
-        })
+async function imageSearch(qWhat, nrPage) {
+  try {
+    const { data } = await axios({
+      method: 'get',
+      url: `https://pixabay.com/api/?key=24803522-b54cf9c0fe000d87c5b473725&q=${qWhat}&image_type=photo&orientation=horizontal&safesearch=true&page=${nrPage}&per_page=40`,
+    });
+    return data;
+  }
+  catch {
+    console.error("Wystąpił błąd podczas żądania pobrania obrazów");
+  }
 }
 
 
@@ -151,7 +115,7 @@ function renderImages(theme) {
 }
 
 
-//basicLightbox gallery
+//gallery
 const selectImage = ((event) => {
   // function selectImage(event) {
   event.preventDefault();
@@ -169,7 +133,5 @@ const selectImage = ((event) => {
 
 gallery.addEventListener("click", selectImage);
 
-
-//btnSearch.addEventListener("click", imageSearch);
-
+//new SimpleLightbox('.gallery a', {captionsData: "alt", captionDelay: 250});
 
