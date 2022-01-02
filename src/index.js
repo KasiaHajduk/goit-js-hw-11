@@ -36,7 +36,11 @@ function searching(event) {
           Notiflix.Notify.info(`Hooray! We found ${res.totalHits} images.`);
           //btnMore.style.visibility = "visible";
           renderImages(res.hits);
-        }
+          if (res.totalHits < nrPage * 40) {
+            //  btnMore.style.visibility = "hidden";
+            Notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+          }
+        } 
       })
       .catch(err => {
         console.error(err);
