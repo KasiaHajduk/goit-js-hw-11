@@ -59,11 +59,12 @@
 .load-more {
   text-transform: uppercase;
   font-size: 20px;
+  font-weight: bold;
   text-align: center;
   color: white;
-  background-color: blue;
+  background-color: #4056b4;
   padding: 20px;
-  border: 1px solid blue;
+  border: 1px solid #4056b4;
   border-radius: 4px;
   margin: 0 auto;
   display: block;
